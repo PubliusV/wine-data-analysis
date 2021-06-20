@@ -1,0 +1,177 @@
+---
+title: "TE_Analysis_Outliers"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(pacman)
+pacman::p_load(magrittr, tidyverse, fpp2, scales, DataExplorer, ggplot2, dplyr, kableExtra, outliers)
+
+```
+
+
+## Data Preparation
+Load the joined wines dataset. Format wine_type as a factor and quality as an ordinal factor.
+
+```{r load_data}
+df<-read.csv("Wines-Joined.csv")
+
+df$wine_type = as.factor(df$wine_type)
+
+df$quality = as.ordered(df$quality)
+
+df = df %>% rename(fixed.acidity = ï..fixed.acidity)
+
+data_num <- df #Duplicate the dataset and convert everything back into numeric
+data_num$wine_type = as.numeric(data_num$wine_type) #convert the factor to numeric for our corrplot
+data_num$quality = as.numeric(data_num$quality)
+```
+
+## Plotting Outliers
+
+### Fixed Acidity
+```{r}
+p1 <- ggplot(df, aes("wines", fixed.acidity)) +
+  geom_boxplot(outlier.alpha = .25)
+
+p2 <- ggplot(df, aes("wines", fixed.acidity)) +
+  geom_point() +
+  geom_violin() 
+
+gridExtra::grid.arrange(p1, p2, ncol = 2)
+```
+
+### Volatile Acidity
+```{r}
+p1 <- ggplot(df, aes("wines", volatile.acidity)) +
+  geom_boxplot(outlier.alpha = .25)
+
+p2 <- ggplot(df, aes("wines", volatile.acidity)) +
+  geom_point() +
+  geom_violin() 
+
+gridExtra::grid.arrange(p1, p2, ncol = 2)
+```
+
+### Citric Acid
+```{r}
+p1 <- ggplot(df, aes("wines", citric.acid)) +
+  geom_boxplot(outlier.alpha = .25)
+
+p2 <- ggplot(df, aes("wines", citric.acid)) +
+  geom_point() +
+  geom_violin() 
+
+gridExtra::grid.arrange(p1, p2, ncol = 2)
+```
+
+### Residual Sugar
+```{r}
+p1 <- ggplot(df, aes("wines", residual.sugar)) +
+  geom_boxplot(outlier.alpha = .25)
+
+p2 <- ggplot(df, aes("wines", residual.sugar)) +
+  geom_point() +
+  geom_violin() 
+
+gridExtra::grid.arrange(p1, p2, ncol = 2)
+```
+
+### Chlorides
+```{r}
+p1 <- ggplot(df, aes("wines", chlorides)) +
+  geom_boxplot(outlier.alpha = .25)
+
+p2 <- ggplot(df, aes("wines", chlorides)) +
+  geom_point() +
+  geom_violin() 
+
+gridExtra::grid.arrange(p1, p2, ncol = 2)
+```
+
+### Free Sulfur Dioxide
+```{r}
+p1 <- ggplot(df, aes("wines", free.sulfur.dioxide)) +
+  geom_boxplot(outlier.alpha = .25)
+
+p2 <- ggplot(df, aes("wines", free.sulfur.dioxide)) +
+  geom_point() +
+  geom_violin() 
+
+gridExtra::grid.arrange(p1, p2, ncol = 2)
+```
+
+### Total Sulfur Dioxide
+```{r}
+p1 <- ggplot(df, aes("wines", total.sulfur.dioxide)) +
+  geom_boxplot(outlier.alpha = .25)
+
+p2 <- ggplot(df, aes("wines", total.sulfur.dioxide)) +
+  geom_point() +
+  geom_violin() 
+
+gridExtra::grid.arrange(p1, p2, ncol = 2)
+```
+
+### Density
+```{r}
+p1 <- ggplot(df, aes("wines", density)) +
+  geom_boxplot(outlier.alpha = .25)
+
+p2 <- ggplot(df, aes("wines", density)) +
+  geom_point() +
+  geom_violin() 
+
+gridExtra::grid.arrange(p1, p2, ncol = 2)
+```
+
+### pH
+```{r}
+p1 <- ggplot(df, aes("wines", pH)) +
+  geom_boxplot(outlier.alpha = .25)
+
+p2 <- ggplot(df, aes("wines", pH)) +
+  geom_point() +
+  geom_violin() 
+
+gridExtra::grid.arrange(p1, p2, ncol = 2)
+```
+
+### Sulphates
+```{r}
+p1 <- ggplot(df, aes("wines", sulphates)) +
+  geom_boxplot(outlier.alpha = .25)
+
+p2 <- ggplot(df, aes("wines", sulphates)) +
+  geom_point() +
+  geom_violin() 
+
+gridExtra::grid.arrange(p1, p2, ncol = 2)
+```
+
+### Alcohol
+```{r}
+p1 <- ggplot(df, aes("wines", alcohol)) +
+  geom_boxplot(outlier.alpha = .25)
+
+p2 <- ggplot(df, aes("wines", alcohol)) +
+  geom_point() +
+  geom_violin() 
+
+gridExtra::grid.arrange(p1, p2, ncol = 2)
+```
+
+### Quality
+```{r}
+p1 <- ggplot(data_num, aes("wines", quality)) +
+  geom_boxplot(outlier.alpha = .25)
+
+p2 <- ggplot(data_num, aes("wines", quality)) +
+  geom_point() +
+  geom_violin() 
+
+gridExtra::grid.arrange(p1, p2, ncol = 2)
+```
+

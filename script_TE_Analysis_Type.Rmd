@@ -1,0 +1,151 @@
+---
+title: "TE_Analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(pacman)
+pacman::p_load(magrittr, tidyverse, fpp2, scales, DataExplorer, ggplot2, dplyr, kableExtra, outliers,ROCR,pROC)
+
+```
+
+
+## R Markdown
+
+
+```{r load_data}
+df<-read.csv("data_Wines-Joined.csv")
+
+df$wine_type = as.factor(df$wine_type)
+
+df$quality = as.ordered(df$quality)
+
+df$wine_type = relevel(df$wine_type, ref=2)
+```
+
+
+
+```{r exploratory 1}
+plot_histogram(df,
+               ggtheme = theme_bw())
+plot_bar(df,
+               ggtheme = theme_bw())
+
+summary(df)
+```
+
+```{r}
+knitr::kable(introduce(df), caption = "Checking for missing data") %>%
+  kable_styling(latex_options = "striped", font_size = 10)
+```
+
+
+```{r}
+set.seed(13)
+index<-sample(1:nrow(df), size=1000, replace=FALSE)
+valid<-df[index,]
+df<-df[-index,]
+
+prop.table(table(valid$wine_type))
+prop.table(table(df$wine_type))
+```
+
+```{r}
+ library(caret)
+  ctrl<-trainControl(method="none", summaryFunction = twoClassSummary, classProbs = TRUE, savePredictions = TRUE)
+
+# Full Logistic Model #
+  lrfull<-train(wine_type~ ï..fixed.acidity + volatile.acidity + citric.acid  +   residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide  +  density + pH + sulphates + alcohol, data=df, method="glm", family="binomial", metric="ROC", trControl=ctrl)
+  options(scipen = 999)
+  lrfull$finalModel$coefficients
+```
+```{r}
+summary(lrfull)
+```
+```{r}
+ pft<-predict.train(lrfull, type="prob")
+  head(pft)
+```
+
+```{r}
+library(pROC)  
+rft<-roc(df$wine_type, pft[,2])
+  rft$auc
+```
+```{r}
+pf<-predict.train(lrfull, newdata=valid, type="prob")
+  head(pf)
+```
+```{r}
+  rf<-roc(valid$wine_type, pf[,2] )
+  rf$auc
+```
+
+```{r}
+vPred_full = predict(lrfull,valid,type = "prob")
+```
+
+```{r}
+lrstep<-train(wine_type~ ï..fixed.acidity + volatile.acidity + citric.acid  +   residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide  +  density + pH + sulphates + alcohol, data=df, method="glmStepAIC", direction="both", metric="ROC", trControl=ctrl, trace=0)
+  
+  pst<-predict.train(lrstep, type="prob")
+  rst<-roc(df$wine_type, pst[,2])
+  rst$auc
+```
+
+```{r}
+  df.step<-lrstep$finalModel$df.null-lrstep$finalModel$df.residual
+  df.step
+```
+
+```{r}
+  ps<-predict.train(lrstep, newdata=valid, type="prob")
+  rs<-roc(valid$wine_type, ps[,2] )
+  rs$auc
+```
+
+```{r}
+ vPred_step = predict(lrstep,valid, type = "prob")
+```
+
+```{r}
+r1<-rf
+r2<-rs
+
+pROC = ggroc(list(r1,r2))+
+  theme_bw() +
+  labs(color = "Model:")
+pROC
+```
+
+```{r}
+pred = prediction(vPred_full$white,valid$wine_type)
+pred1 = prediction(vPred_step$white,valid$wine_type)
+
+lift<-performance(pred, "lift", "rpp")
+lift1 = performance(pred1, "lift", "rpp")
+
+plot(lift, main="Lift chart", col=2)
+legend(0.6, 2, legend=c("Model 1","Model 2"),
+       col=c("red","black"), lty=1, cex=0.8)
+plot(lift1,add=TRUE)
+```
+
+```{r}
+summary(lrstep)
+```
+
+```{r}
+class_prediction <-
+  ifelse(ps[,2] > 0.50,
+         "red",
+         "white"
+  )
+class_prediction = as.factor(class_prediction)
+class_prediction = relevel(class_prediction, ref = "white")
+
+confusionMatrix(valid$wine_type, class_prediction)
+```
+

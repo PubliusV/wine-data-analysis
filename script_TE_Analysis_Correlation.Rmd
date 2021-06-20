@@ -1,0 +1,35 @@
+---
+title: "TE_Analysis_Correlation"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(pacman)
+
+pacman::p_load(magrittr, tidyverse, fpp2, scales, DataExplorer, ggplot2, dplyr, kableExtra, outliers, corrplot)
+```
+
+
+## Data Preparation
+Load the joined wines dataset. Format wine_type as a factor. Rename fixed acidity.
+
+```{r load_data}
+df<-read.csv("data_Wines-Joined.csv") # Load dataset
+
+df$wine_type = as.factor(df$wine_type) # Wine type to factor
+
+df = df %>% rename(fixed.acidity = ï..fixed.acidity) # Get the special characters out of fixed.acidity's name
+```
+
+## Correlation Matrix
+```{r}
+data_num <- df #Duplicate the dataset (More for the sake of my environment, unnecessary in isolation)
+data_num$wine_type = as.numeric(data_num$wine_type) #convert the factor to numeric for our corrplot
+
+corrplot(cor(data_num), method="circle", type="upper") # compute the correlation matrix
+```
+
